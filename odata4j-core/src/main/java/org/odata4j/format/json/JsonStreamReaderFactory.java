@@ -541,10 +541,12 @@ class JsonStreamReaderImpl implements JsonStreamReader {
 
       switch (state.peek()) {
       case NONE:
-        if (token.type != JsonTokenType.LEFT_CURLY_BRACKET) {
-          throw new JsonParseException("no JSON format must start with {");
-        } else {
-          return createStartObjectEvent();
+        if (token.type == JsonTokenType.LEFT_CURLY_BRACKET) {
+            return createStartObjectEvent();
+        } else if(token.type==JsonTokenType.LEFT_BRACKET){
+            return createStartArrayEvent();
+        }else{
+            return createStartObjectEvent();    
         }
 
       case OBJECT:

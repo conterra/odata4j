@@ -18,7 +18,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
 
 import org.odata4j.core.ODataConstants;
 import org.odata4j.core.ODataHttpMethod;
@@ -36,20 +36,20 @@ import org.odata4j.producer.EntityResponse;
 import org.odata4j.producer.ODataProducer;
 import org.odata4j.producer.OMediaLinkExtension;
 
-@Path("{entitySetName: [^/()]+?}{id: \\(.+?\\)}")
+@Path("{entitySetName: [^/()]+?}{id: \\([^()]+?\\)}")
 public class EntityRequestResource extends BaseResource {
 
   private static final Logger log = Logger.getLogger(EntityRequestResource.class.getName());
 
   @PUT
-  public Response updateEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo, @Context ContextResolver<ODataProducer> producerResolver,
+  public Response updateEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo, @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
       InputStream payload) throws Exception {
 
     log.info(String.format("updateEntity(%s,%s)", entitySetName, id));
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     // is this a new media resource?
     // check for HasStream
@@ -78,14 +78,12 @@ public class EntityRequestResource extends BaseResource {
    *       items instead of loading the entire batch payload into memory and then
    *       processing the batch items.
    */
-  protected Response updateEntity(HttpHeaders httpHeaders, UriInfo uriInfo, ContextResolver<ODataProducer> producerResolver,
+  protected Response updateEntity(HttpHeaders httpHeaders, UriInfo uriInfo, ODataProducer producer,
       String entitySetName,
       String id,
       String payload) throws Exception {
 
     log.info(String.format("updateEntity(%s,%s)", entitySetName, id));
-
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     // is this a new media resource?
     // check for HasStream
@@ -128,14 +126,14 @@ public class EntityRequestResource extends BaseResource {
   }
 
   @POST
-  public Response mergeEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo, @Context ContextResolver<ODataProducer> producerResolver,
+  public Response mergeEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo, @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
       String payload) {
 
     log.info(String.format("mergeEntity(%s,%s)", entitySetName, id));
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     OEntityKey entityKey = OEntityKey.parse(id);
 
@@ -171,7 +169,7 @@ public class EntityRequestResource extends BaseResource {
 
   @DELETE
   public Response deleteEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo,
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @QueryParam("$format") String format,
       @QueryParam("$callback") String callback,
       @PathParam("entitySetName") String entitySetName,
@@ -179,7 +177,7 @@ public class EntityRequestResource extends BaseResource {
 
     log.info(String.format("deleteEntity(%s,%s)", entitySetName, id));
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     // the OData URI scheme makes it impossible to have unique @Paths that refer
     // to functions and entity sets
@@ -218,7 +216,7 @@ public class EntityRequestResource extends BaseResource {
 
   @GET
   @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8, ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8, ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
-  public Response getEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo, @Context ContextResolver<ODataProducer> producerResolver,
+  public Response getEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo, @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
       @QueryParam("$format") String format,
@@ -226,7 +224,7 @@ public class EntityRequestResource extends BaseResource {
       @QueryParam("$expand") String expand,
       @QueryParam("$select") String select) {
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
     return getEntityImpl(httpHeaders, uriInfo, producer, entitySetName, id, format, callback, expand, select);
   }
 
@@ -266,7 +264,7 @@ public class EntityRequestResource extends BaseResource {
     return Response.ok(entity, fw.getContentType()).header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
   }
 
-  @Path("{first: \\$}links/{targetNavProp:.+?}{targetId: (\\(.+?\\))?}")
+  @Path("{first: \\$}links/{targetNavProp:.+?}{targetId: (\\([^()]+?\\))?}")
   public LinksRequestResource getLinks(
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,

@@ -153,7 +153,8 @@ public class JsonComplexObjectFormatParser extends JsonFormatParser implements F
       EdmProperty ep = returnType.findProperty(name);
 
       if (ep == null) {
-        throw new IllegalArgumentException("unknown property " + name + " for " + returnType.getFullyQualifiedTypeName());
+		ep = EdmProperty.newBuilder(name).setType(EdmSimpleType.STRING).build();
+        //throw new IllegalArgumentException("unknown property " + name + " for " + returnType.getFullyQualifiedTypeName());
       }
 
       if (!ep.getType().isSimple()) {

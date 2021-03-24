@@ -15,6 +15,7 @@ import org.odata4j.format.json.JsonErrorFormatParser;
 import org.odata4j.format.json.JsonFeedFormatParser;
 import org.odata4j.format.json.JsonSimpleObjectFormatParser;
 import org.odata4j.format.json.JsonSingleLinkFormatParser;
+import org.odata4j.format.json.JsonSingleLinksFormatParser;
 import org.odata4j.format.xml.AtomEntryFormatParser;
 import org.odata4j.format.xml.AtomErrorFormatParser;
 import org.odata4j.format.xml.AtomFeedFormatParser;
@@ -31,6 +32,8 @@ public class FormatParserFactory {
     FormatParser<Entry> getEntryFormatParser(Settings settings);
 
     FormatParser<SingleLink> getSingleLinkFormatParser(Settings settings);
+    
+    FormatParser<SingleLinks> getSingleLinksFormatParser(Settings settings);
 
     FormatParser<OComplexObject> getComplexObjectFormatParser(Settings settings);
 
@@ -54,6 +57,8 @@ public class FormatParserFactory {
       return (FormatParser<T>) formatParsers.getEntryFormatParser(settings);
     } else if (SingleLink.class.isAssignableFrom(targetType)) {
       return (FormatParser<T>) formatParsers.getSingleLinkFormatParser(settings);
+    } else if (SingleLinks.class.isAssignableFrom(targetType)) {
+      return (FormatParser<T>) formatParsers.getSingleLinksFormatParser(settings);
     } else if (OComplexObject.class.isAssignableFrom(targetType)) {
       return (FormatParser<T>) formatParsers.getComplexObjectFormatParser(settings);
     } else if (OCollection.class.isAssignableFrom(targetType)) {
@@ -96,6 +101,11 @@ public class FormatParserFactory {
     public FormatParser<SingleLink> getSingleLinkFormatParser(Settings settings) {
       return new JsonSingleLinkFormatParser(settings);
     }
+    
+    @Override
+    public FormatParser<SingleLinks> getSingleLinksFormatParser(Settings settings) {
+        return new JsonSingleLinksFormatParser(settings);
+    }
 
     @Override
     public FormatParser<OComplexObject> getComplexObjectFormatParser(Settings settings) {
@@ -134,6 +144,11 @@ public class FormatParserFactory {
     @Override
     public FormatParser<SingleLink> getSingleLinkFormatParser(Settings settings) {
       return new AtomSingleLinkFormatParser();
+    }
+
+    @Override
+    public FormatParser<SingleLinks> getSingleLinksFormatParser(Settings settings) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

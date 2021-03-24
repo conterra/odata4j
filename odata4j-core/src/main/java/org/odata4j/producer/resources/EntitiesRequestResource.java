@@ -23,7 +23,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
 
 import org.odata4j.core.Guid;
 import org.odata4j.core.ODataConstants;
@@ -53,7 +53,7 @@ public class EntitiesRequestResource extends BaseResource {
   public Response createEntity(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @QueryParam("$format") String format,
       @QueryParam("$callback") String callback,
       @PathParam("entitySetName") String entitySetName,
@@ -65,7 +65,7 @@ public class EntitiesRequestResource extends BaseResource {
 
     log("createEntity", "entitySetName", entitySetName);
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     // the OData URI scheme makes it impossible to have unique @Paths that refer
     // to functions and entity sets
@@ -149,7 +149,7 @@ public class EntitiesRequestResource extends BaseResource {
   public Response functionCallPut(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @QueryParam("$format") String format,
       @QueryParam("$callback") String callback,
       @PathParam("entitySetName") String functionName,
@@ -158,7 +158,7 @@ public class EntitiesRequestResource extends BaseResource {
     Response response;
     log("functionCallDelete", "function", functionName);
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     // the OData URI scheme makes it impossible to have unique @Paths that refer
     // to functions and entity sets
@@ -178,7 +178,7 @@ public class EntitiesRequestResource extends BaseResource {
   public Response functionCallDelete(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @QueryParam("$format") String format,
       @QueryParam("$callback") String callback,
       @PathParam("entitySetName") String functionName,
@@ -187,7 +187,7 @@ public class EntitiesRequestResource extends BaseResource {
     Response response;
     log("functionCallDelete", "function", functionName);
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     // the OData URI scheme makes it impossible to have unique @Paths that refer
     // to functions and entity sets
@@ -210,7 +210,7 @@ public class EntitiesRequestResource extends BaseResource {
   public Response getEntities(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @QueryParam("$inlinecount") String inlineCount,
       @QueryParam("$top") String top,
@@ -237,7 +237,7 @@ public class EntitiesRequestResource extends BaseResource {
         "expand", expand,
         "select", select);
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     return getEntitiesImpl(httpHeaders, uriInfo, producer, entitySetName, false, inlineCount, top, skip,
         filter, orderBy, format, callback, skipToken, expand, select);
@@ -252,7 +252,7 @@ public class EntitiesRequestResource extends BaseResource {
   public Response getEntitiesCount(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("count") String count,
       @QueryParam("$inlinecount") String inlineCount,
@@ -279,7 +279,7 @@ public class EntitiesRequestResource extends BaseResource {
         "expand", expand,
         "select", select);
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     return getEntitiesImpl(httpHeaders, uriInfo, producer, entitySetName, true, inlineCount, top, skip,
         filter, orderBy, format, callback, skipToken, expand, select);
@@ -370,7 +370,7 @@ public class EntitiesRequestResource extends BaseResource {
   @Consumes(ODataBatchProvider.MULTIPART_MIXED)
   @Produces(ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8)
   public Response processBatch(
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @Context HttpHeaders headers,
       @Context Request request,
       @QueryParam("$format") String format,
@@ -393,7 +393,7 @@ public class EntitiesRequestResource extends BaseResource {
 
     batchResponse.append('\n');
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     for (BatchBodyPart bodyPart : bodyParts) {
       HttpHeaders httpHeaders = bodyPart.getHttpHeaders();
@@ -410,15 +410,15 @@ public class EntitiesRequestResource extends BaseResource {
             getRequestEntity(httpHeaders, uriInfo, entityString, producer.getMetadata(), entitySetName, null));
         break;
       case PUT:
-        response = er.updateEntity(httpHeaders, uriInfo, producerResolver,
+        response = er.updateEntity(httpHeaders, uriInfo, producer,
             entitySetName, entityId, entityString);
         break;
       case MERGE:
-        response = er.mergeEntity(httpHeaders, uriInfo, producerResolver, entitySetName,
+        response = er.mergeEntity(httpHeaders, uriInfo, providers, entitySetName,
             entityId, entityString);
         break;
       case DELETE:
-        response = er.deleteEntity(httpHeaders, uriInfo, producerResolver, format, callback, entitySetName, entityId);
+        response = er.deleteEntity(httpHeaders, uriInfo, providers, format, callback, entitySetName, entityId);
         break;
       case GET:
         throw new UnsupportedOperationException("Not supported yet.");

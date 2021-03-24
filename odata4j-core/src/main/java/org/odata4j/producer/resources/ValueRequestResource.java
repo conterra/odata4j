@@ -8,7 +8,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
 
 import org.odata4j.core.OEntityKey;
 import org.odata4j.edm.EdmEntitySet;
@@ -24,12 +24,12 @@ public class ValueRequestResource {
   @GET
   public Response get(
       @Context UriInfo uriInfo,
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
       @QueryParam("$expand") String expand,
       @QueryParam("$select") String select) {
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
     EdmEntitySet entitySet = producer.getMetadata().findEdmEntitySet(entitySetName);
 
     if (entitySet != null && entitySet.getType().getHasStream()) {

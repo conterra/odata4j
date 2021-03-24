@@ -17,7 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
 
 import org.odata4j.core.ODataConstants;
 import org.odata4j.core.ODataVersion;
@@ -45,7 +45,7 @@ public class PropertyRequestResource extends BaseResource {
 
   @PUT
   public Response updateEntity(
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
       @PathParam("navProp") String navProp) {
@@ -58,7 +58,7 @@ public class PropertyRequestResource extends BaseResource {
   public Response mergeEntity(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
       @PathParam("navProp") String navProp,
@@ -67,7 +67,7 @@ public class PropertyRequestResource extends BaseResource {
     String method = httpHeaders.getRequestHeaders().getFirst(ODataConstants.Headers.X_HTTP_METHOD);
     if (!"MERGE".equals(method)) {
 
-      ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+      ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
       // determine the expected entity set
       EdmDataServices metadata = producer.getMetadata();
@@ -110,7 +110,7 @@ public class PropertyRequestResource extends BaseResource {
 
   @DELETE
   public Response deleteEntity(
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
       @PathParam("navProp") String navProp) {
@@ -125,7 +125,7 @@ public class PropertyRequestResource extends BaseResource {
   public Response getNavProperty(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context ContextResolver<ODataProducer> producerResolver,
+      @Context Providers providers,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
       @PathParam("navProp") String navProp,
@@ -151,7 +151,7 @@ public class PropertyRequestResource extends BaseResource {
         OptionsQueryParser.parseSelect(expand),
         OptionsQueryParser.parseSelect(select));
 
-    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    ODataProducer producer = ODataProducerLookup.getODataProducer(providers);
 
     if (navProp.endsWith("/$count")
         || navProp.endsWith("/$count/")
