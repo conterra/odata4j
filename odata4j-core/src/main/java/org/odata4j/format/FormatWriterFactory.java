@@ -2,7 +2,7 @@ package org.odata4j.format;
 
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.format.json.JsonCollectionFormatWriter;

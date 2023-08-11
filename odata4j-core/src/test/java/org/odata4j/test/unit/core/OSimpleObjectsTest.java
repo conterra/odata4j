@@ -33,7 +33,7 @@ public class OSimpleObjectsTest {
   public void parseNullProperty() throws Exception {
     for (EdmSimpleType<?> simpleType : EdmSimpleType.ALL) {
       OSimpleObject<?> simpleObject = OSimpleObjects.parse(simpleType, null);
-      assertThat(simpleObject.getType(), is(simpleType.getClass()));
+      assertThat(simpleObject.getType(), is(simpleType));
       assertThat(simpleObject.getValue(), nullValue());
     }
   }

@@ -1,6 +1,6 @@
 package org.odata4j.format;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import org.odata4j.core.OCollection;
 import org.odata4j.core.OComplexObject;

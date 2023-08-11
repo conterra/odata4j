@@ -188,8 +188,10 @@ public class ConsumerFunctionCallRequest<T extends OObject>
 
     ODataVersion version = InternalUtil.getDataServiceVersion(response.getHeaders().getFirst(ODataConstants.Headers.DATA_SERVICE_VERSION));
 
+    Class<? extends OObject> typeClass
+              = function.getReturnType().isSimple() ? OSimpleObject.class : EdmType.getInstanceType(function.getReturnType());
     FormatParser<? extends OObject> parser = FormatParserFactory.getParser(
-        function.getReturnType().isSimple() ? OSimpleObject.class : EdmType.getInstanceType(function.getReturnType()),
+        typeClass,
         getClient().getFormatType(),
         new Settings(
             version,
