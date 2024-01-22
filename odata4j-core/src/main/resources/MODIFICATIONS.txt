@@ -1,0 +1,3 @@
+Modifications by: con terra GmbH, Martin-Luther-King-Weg 20, 48155 Münster, Germany ("con terra").
+
+con terra modified the Java class files of the original JAR file.
