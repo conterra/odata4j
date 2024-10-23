@@ -4,7 +4,7 @@
 
     <artifactId>odata4j-core</artifactId>
     <packaging>jar</packaging>
-    <version>0.7.0-patch05-jakarta</version>
+    <version>0.7.0-patch06-jakarta</version>
 
     <parent>
         <groupId>org.odata4j</groupId>
